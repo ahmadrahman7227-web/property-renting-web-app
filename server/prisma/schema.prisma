@@ -1,0 +1,250 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//
+// ENUMS
+//
+
+enum Role {
+  USER
+  TENANT
+}
+
+enum BookingStatus {
+  WAITING_PAYMENT
+  WAITING_CONFIRMATION
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum AdjustmentType {
+  PERCENTAGE
+  NOMINAL
+}
+
+//
+// USERS
+//
+
+model User {
+  id               String   @id @default(uuid())
+  fullName         String
+  email            String   @unique
+  password         String?
+  role             Role
+  isVerified       Boolean  @default(false)
+  profilePicture   String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  properties       Property[]
+  bookings         Booking[]
+  reviews          Review[]
+  emailVerifications EmailVerification[]
+  passwordResets   PasswordReset[]
+}
+
+//
+// EMAIL VERIFICATION
+//
+
+model EmailVerification {
+  id          String   @id @default(uuid())
+  userId      String
+  token       String   @unique
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+//
+// RESET PASSWORD
+//
+
+model PasswordReset {
+  id          String   @id @default(uuid())
+  userId      String
+  token       String   @unique
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+//
+// PROPERTY CATEGORY
+//
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  createdAt   DateTime   @default(now())
+
+  properties  Property[]
+}
+
+//
+// PROPERTY
+//
+
+model Property {
+  id            String   @id @default(uuid())
+  tenantId      String
+  categoryId    String
+
+  name          String
+  description   String
+  city          String
+  address       String
+  latitude      Float?
+  longitude     Float?
+  mainPicture   String
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  tenant        User       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category      Category   @relation(fields: [categoryId], references: [id])
+
+  images        PropertyImage[]
+  rooms         Room[]
+  reviews       Review[]
+}
+
+//
+// PROPERTY IMAGES
+//
+
+model PropertyImage {
+  id          String   @id @default(uuid())
+  propertyId  String
+  imageUrl    String
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+//
+// ROOMS
+//
+
+model Room {
+  id            String   @id @default(uuid())
+  propertyId    String
+
+  name          String
+  price         Float
+  description   String
+  capacity      Int
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  property       Property            @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  availabilities RoomAvailability[]
+  peakRates      PeakSeasonRate[]
+  bookings       Booking[]
+}
+
+//
+// ROOM AVAILABILITY
+//
+
+model RoomAvailability {
+  id            String   @id @default(uuid())
+  roomId        String
+  date          DateTime
+  isAvailable   Boolean  @default(true)
+
+  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, date])
+}
+
+//
+// PEAK SEASON RATE
+//
+
+model PeakSeasonRate {
+  id               String         @id @default(uuid())
+  roomId           String
+
+  startDate        DateTime
+  endDate          DateTime
+
+  adjustmentType   AdjustmentType
+  adjustmentValue  Float
+
+  room             Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+//
+// BOOKINGS
+//
+
+model Booking {
+  id               String        @id @default(uuid())
+  userId           String
+  roomId           String
+
+  checkIn          DateTime
+  checkOut         DateTime
+  guestCount       Int
+
+  totalPrice       Float
+  status           BookingStatus
+
+  paymentDeadline  DateTime
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room             Room          @relation(fields: [roomId], references: [id])
+
+  paymentProof     PaymentProof?
+}
+
+//
+// PAYMENT PROOF
+//
+
+model PaymentProof {
+  id          String   @id @default(uuid())
+  bookingId   String   @unique
+  imageUrl    String
+  uploadedAt  DateTime @default(now())
+
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+//
+// REVIEWS
+//
+
+model Review {
+  id          String   @id @default(uuid())
+  userId      String
+  propertyId  String
+
+  rating      Int
+  comment     String
+
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
