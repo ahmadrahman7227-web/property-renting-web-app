@@ -1,9 +1,7 @@
+import AppRoutes from "./routes";
+
 function App() {
-  return (
-    <div className="App">
-      <h1>Property Renting App</h1>
-    </div>
-  );
+  return <AppRoutes />;
 }
 
-export default App
+export default App;

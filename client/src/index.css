@@ -1,2 +1,67 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap');
+
+:root {
+  --background: #fbf9f4;
+  --primary: #006491;
+  --secondary: #006a64;
+  --tertiary: #a43b2c;
+  --surface: #ffffff;
+  --text: #1b1c19;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  font-family: "Be Vietnam Pro", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+}
+
+.section-container {
+  @apply mx-auto max-w-7xl px-5 md:px-16;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+img {
+  user-select: none;
+}
+
+section {
+  position: relative;
+}
+
+button,
+a {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease,
+    opacity 0.3s ease;
+}

@@ -20,8 +20,9 @@ enum BookingStatus {
   WAITING_PAYMENT
   WAITING_CONFIRMATION
   CONFIRMED
-  CANCELLED
+  PROCESSING
   COMPLETED
+  CANCELLED
 }
 
 enum AdjustmentType {
@@ -29,28 +30,44 @@ enum AdjustmentType {
   NOMINAL
 }
 
+enum PaymentProofStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  BOOKING
+  PAYMENT
+  REVIEW
+  SYSTEM
+}
+
 //
 // USERS
 //
 
 model User {
-  id               String   @id @default(uuid())
-  fullName         String
-  email            String   @unique
-  password         String?
-  role             Role
-  isVerified       Boolean  @default(false)
-  profilePicture   String?
+  id             String  @id @default(uuid())
+  fullName       String
+  email          String  @unique
+  password       String?
+  phone          String?
+  role           Role
+  isVerified     Boolean @default(false)
+  profilePicture String?
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  properties       Property[]
-  bookings         Booking[]
-  reviews          Review[]
+  properties         Property[]
+  bookings           Booking[]
+  reviews            Review[]
+  notifications      Notification[]
   emailVerifications EmailVerification[]
-  passwordResets   PasswordReset[]
+  passwordResets     PasswordReset[]
+  salesReports       SalesReport[]
 }
 
 //
@@ -58,14 +75,14 @@ model User {
 //
 
 model EmailVerification {
-  id          String   @id @default(uuid())
-  userId      String
-  token       String   @unique
-  expiresAt   DateTime
-  isUsed      Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 //
@@ -73,14 +90,31 @@ model EmailVerification {
 //
 
 model PasswordReset {
-  id          String   @id @default(uuid())
-  userId      String
-  token       String   @unique
-  expiresAt   DateTime
-  isUsed      Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+//
+// NOTIFICATIONS
+//
+
+model Notification {
+  id      String           @id @default(uuid())
+  userId  String
+  type    NotificationType
+  title   String
+  message String
+  isRead  Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 //
@@ -88,11 +122,14 @@ model PasswordReset {
 //
 
 model Category {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  createdAt   DateTime   @default(now())
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
 
-  properties  Property[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties Property[]
 }
 
 //
@@ -100,28 +137,28 @@ model Category {
 //
 
 model Property {
-  id            String   @id @default(uuid())
-  tenantId      String
-  categoryId    String
+  id         String @id @default(uuid())
+  tenantId   String
+  categoryId String
 
-  name          String
-  description   String
-  city          String
-  address       String
-  latitude      Float?
-  longitude     Float?
-  mainPicture   String
+  name        String
+  description String
+  city        String
+  address     String
+  latitude    Float?
+  longitude   Float?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  tenant        User       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  category      Category   @relation(fields: [categoryId], references: [id])
+  tenant   User     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
 
-  images        PropertyImage[]
-  rooms         Room[]
-  reviews       Review[]
+  images       PropertyImage[]
+  rooms        Room[]
+  reviews      Review[]
+  salesReports SalesReport[]
 }
 
 //
@@ -129,11 +166,14 @@ model Property {
 //
 
 model PropertyImage {
-  id          String   @id @default(uuid())
-  propertyId  String
-  imageUrl    String
+  id         String  @id @default(uuid())
+  propertyId String
+  imageUrl   String
+  isPrimary  Boolean @default(false)
 
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 }
 
 //
@@ -141,22 +181,39 @@ model PropertyImage {
 //
 
 model Room {
-  id            String   @id @default(uuid())
-  propertyId    String
+  id         String @id @default(uuid())
+  propertyId String
 
-  name          String
-  price         Float
-  description   String
-  capacity      Int
+  name        String
+  basePrice   Float
+  description String
+  capacity    Int
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  property       Property            @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property       Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  images         RoomImage[]
   availabilities RoomAvailability[]
   peakRates      PeakSeasonRate[]
-  bookings       Booking[]
+
+  bookingRooms   BookingRoom[]
+}
+
+//
+// ROOM IMAGES
+//
+
+model RoomImage {
+  id        String  @id @default(uuid())
+  roomId    String
+  imageUrl  String
+  isPrimary Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 //
@@ -164,12 +221,15 @@ model Room {
 //
 
 model RoomAvailability {
-  id            String   @id @default(uuid())
-  roomId        String
-  date          DateTime
-  isAvailable   Boolean  @default(true)
+  id          String   @id @default(uuid())
+  roomId      String
+  date        DateTime
+  isAvailable Boolean  @default(true)
 
-  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@unique([roomId, date])
 }
@@ -179,16 +239,19 @@ model RoomAvailability {
 //
 
 model PeakSeasonRate {
-  id               String         @id @default(uuid())
-  roomId           String
+  id     String @id @default(uuid())
+  roomId String
 
-  startDate        DateTime
-  endDate          DateTime
+  startDate DateTime
+  endDate   DateTime
 
-  adjustmentType   AdjustmentType
-  adjustmentValue  Float
+  adjustmentType  AdjustmentType
+  adjustmentValue Float
 
-  room             Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 //
@@ -196,26 +259,54 @@ model PeakSeasonRate {
 //
 
 model Booking {
-  id               String        @id @default(uuid())
-  userId           String
-  roomId           String
+  id          String @id @default(uuid())
+  orderNumber String @unique
 
-  checkIn          DateTime
-  checkOut         DateTime
-  guestCount       Int
+  userId String
 
-  totalPrice       Float
-  status           BookingStatus
+  checkIn    DateTime
+  checkOut   DateTime
+  guestCount Int
 
-  paymentDeadline  DateTime
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  totalPrice Float
+  status     BookingStatus
+
+  paymentDeadline DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  room             Room          @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  paymentProof     PaymentProof?
+  bookingRooms BookingRoom[]
+
+  paymentProof PaymentProof?
+  review       Review?
+  salesReports SalesReport[]
+}
+
+//
+// BOOKING ROOMS
+//
+
+model BookingRoom {
+  id String @id @default(uuid())
+
+  bookingId String
+  roomId    String
+
+  quantity      Int
+  roomCapacity  Int
+
+  pricePerNight Float
+  subtotal      Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  room    Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 //
@@ -223,12 +314,21 @@ model Booking {
 //
 
 model PaymentProof {
-  id          String   @id @default(uuid())
-  bookingId   String   @unique
-  imageUrl    String
-  uploadedAt  DateTime @default(now())
+  id        String @id @default(uuid())
+  bookingId String @unique
 
-  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  imageUrl String
+  amount   Float
+
+  status PaymentProofStatus @default(PENDING)
+
+  uploadedAt DateTime  @default(now())
+  reviewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
 
 //
@@ -236,15 +336,39 @@ model PaymentProof {
 //
 
 model Review {
-  id          String   @id @default(uuid())
-  userId      String
-  propertyId  String
+  id         String @id @default(uuid())
+  userId     String
+  propertyId String
+  bookingId  String @unique
 
-  rating      Int
-  comment     String
+  rating  Int
+  comment String
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  booking  Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+//
+// SALES REPORTS
+//
+
+model SalesReport {
+  id String @id @default(uuid())
+
+  tenantId   String
+  propertyId String
+  bookingId  String
+
+  totalSales Float
+  reportDate DateTime
+
+  createdAt DateTime @default(now())
+
+  tenant   User     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  booking  Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
