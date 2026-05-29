@@ -30,8 +30,8 @@ ReactDOM.createRoot(
           element={<LoginPage />}
         />
 
-        {/* Register */}
-        <Route
+        {/* Register */} 
+          <Route
           path="/register"
           element={<RegisterPage />}
         />
