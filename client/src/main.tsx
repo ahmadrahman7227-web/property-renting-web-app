@@ -11,6 +11,8 @@ import "./index.css";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import LandingPage from "./pages/landing/LandingPage";
+import PropertyListPage from "./pages/property/PropertyListPage";
+import PropertyDetailPage from "./pages/property/PropertyDetailPage";
 
 ReactDOM.createRoot(
   document.getElementById("root")!
@@ -34,6 +36,18 @@ ReactDOM.createRoot(
           <Route
           path="/register"
           element={<RegisterPage />}
+        />
+
+        {/* Property List */}
+        <Route
+          path="/properties"
+          element={<PropertyListPage />}
+        />
+
+        {/* Property Detail */}
+        <Route
+          path="/properties/:id"
+          element={<PropertyDetailPage />}
         />
       </Routes>
     </BrowserRouter>
