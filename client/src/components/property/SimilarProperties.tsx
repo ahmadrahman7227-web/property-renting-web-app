@@ -2,6 +2,10 @@ import { MapPin, Star } from "lucide-react";
 
 import Button from "../ui/Button";
 
+import similarImage1 from "../../assets/similar-1.jpg";
+import similarImage2 from "../../assets/similar-2.jpg";
+import similarImage3 from "../../assets/similar-3.jpg";
+
 // =====================================
 // Similar Properties
 //
@@ -15,8 +19,7 @@ function SimilarProperties() {
       name: "Ocean Breeze Villa",
       location: "Santorini",
       rating: 4.8,
-      image:
-        "https://images.unsplash.com/photo-1494526585095-c41746248156?w=800",
+      image: similarImage1,
     },
 
     {
@@ -24,8 +27,7 @@ function SimilarProperties() {
       name: "Luxury Palm Resort",
       location: "Dubai",
       rating: 4.9,
-      image:
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800",
+      image: similarImage2,
     },
 
     {
@@ -33,8 +35,7 @@ function SimilarProperties() {
       name: "Aurora Cabin",
       location: "Iceland",
       rating: 4.7,
-      image:
-        "https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800",
+      image: similarImage3,
     },
   ];
 

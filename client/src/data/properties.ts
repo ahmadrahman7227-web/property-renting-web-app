@@ -1,3 +1,10 @@
+import propertyImage1 from "../assets/properties-1.jpg";
+import propertyImage2 from "../assets/properties-2.jpg";
+import propertyImage3 from "../assets/properties-3.jpg";
+import propertyImage4 from "../assets/properties-4.jpg";
+import propertyImage5 from "../assets/properties-5.jpg";
+import propertyImage6 from "../assets/properties-6.jpg";
+
 // ==============================
 // Dummy Property Data
 // Akan diganti API nantinya
@@ -10,8 +17,7 @@ export const properties = [
     location: "Bali, Indonesia",
     price: 850,
     rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
+    image: propertyImage1,
   },
 
   {
@@ -20,8 +26,7 @@ export const properties = [
     location: "Kyoto, Japan",
     price: 1200,
     rating: 4.8,
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop",
+    image: propertyImage2,
   },
 
   {
@@ -30,8 +35,7 @@ export const properties = [
     location: "Santorini, Greece",
     price: 980,
     rating: 4.7,
-    image:
-      "https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1200&auto=format&fit=crop",
+    image: propertyImage3,
   },
 
   {
@@ -40,8 +44,7 @@ export const properties = [
     location: "Swiss Alps",
     price: 1500,
     rating: 5,
-    image:
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200&auto=format&fit=crop",
+    image: propertyImage4,
   },
 
   {
@@ -50,8 +53,7 @@ export const properties = [
     location: "Dubai, UAE",
     price: 1800,
     rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1200&auto=format&fit=crop",
+    image: propertyImage5,
   },
 
   {
@@ -60,7 +62,6 @@ export const properties = [
     location: "Iceland",
     price: 760,
     rating: 4.6,
-    image:
-      "https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=1200&auto=format&fit=crop",
+    image: propertyImage6,
   },
 ];

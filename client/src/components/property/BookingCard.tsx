@@ -4,6 +4,7 @@ import {
 } from "lucide-react";
 
 import Button from "../ui/Button";
+import { Link } from "react-router-dom";
 
 // =====================================
 // Booking Card
@@ -88,12 +89,14 @@ function BookingCard({
       CTA
       ========================== */}
 
-      <Button
-        variant="primary"
-        className="w-full py-4"
-      >
-        Book Now
-      </Button>
+      <Link to="/booking">
+  <Button
+    variant="primary"
+    className="w-full py-4"
+  >
+    Book Now
+  </Button>
+</Link>
     </aside>
   );
 }

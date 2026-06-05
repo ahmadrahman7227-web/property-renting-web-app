@@ -9,6 +9,12 @@ import Footer from "../../components/landing/Footer";
 import Navbar from "../../components/landing/Navbar";
 import Container from "../../components/ui/Container";
 
+import propertyImage1 from "../../assets/property-detail-1.jpg";
+import propertyImage2 from "../../assets/property-detail-2.jpg";
+import propertyImage3 from "../../assets/property-detail-3.jpg";
+import propertyImage4 from "../../assets/property-detail-4.jpg";
+import propertyImage5 from "../../assets/property-detail-5.jpg";
+
 // =====================================
 // Property Detail Page
 //
@@ -29,11 +35,11 @@ function PropertyDetailPage() {
       "Experience an unforgettable luxury retreat in the heart of Bali. Enjoy breathtaking views, private amenities, and world-class comfort designed for modern travelers.",
 
     images: [
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1400",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800",
-      "https://images.unsplash.com/photo-1494526585095-c41746248156?w=800",
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800",
-      "https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800",
+      propertyImage1,
+      propertyImage2,
+      propertyImage3,
+      propertyImage4,
+      propertyImage5,
     ],
   };
 

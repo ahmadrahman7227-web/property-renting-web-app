@@ -6,11 +6,67 @@ import {
 } from "lucide-react";
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import axios from "axios";
 
 function LoginPage() {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] =
     useState(false);
+
+  const [email, setEmail] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const handleSubmit = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response =
+        await axios.post(
+          "http://localhost:8000/api/auth/login",
+          {
+            email,
+            password,
+          }
+        );
+
+      const token =
+        response.data.data.token;
+
+      localStorage.setItem(
+        "token",
+        token
+      );
+
+      navigate("/dashboard");
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+          "Login failed"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f8f6f1] px-5 py-10">
@@ -44,13 +100,17 @@ function LoginPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-relaxed text-gray-500">
-            Sign in to continue exploring premium stays and
-            curated luxury experiences.
+            Sign in to continue exploring
+            premium stays and curated luxury
+            experiences.
           </p>
         </div>
 
         {/* Form */}
-        <form className="space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
           {/* Email */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-600">
@@ -65,8 +125,15 @@ function LoginPage() {
 
               <input
                 type="email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(
+                    e.target.value
+                  )
+                }
                 placeholder="you@example.com"
                 className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
+                required
               />
             </div>
           </div>
@@ -98,14 +165,23 @@ function LoginPage() {
                     ? "text"
                     : "password"
                 }
+                value={password}
+                onChange={(e) =>
+                  setPassword(
+                    e.target.value
+                  )
+                }
                 placeholder="••••••••"
                 className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
+                required
               />
 
               <button
                 type="button"
                 onClick={() =>
-                  setShowPassword(!showPassword)
+                  setShowPassword(
+                    !showPassword
+                  )
                 }
                 className="text-gray-400 transition duration-300 hover:text-[#006491]"
               >
@@ -130,12 +206,34 @@ function LoginPage() {
             </label>
           </div>
 
+          {/* Error */}
+{error && (
+  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+    <p className="text-sm text-red-600">
+      {error}
+    </p>
+
+    {(error === "Account not found" ||
+      error === "Invalid credentials") && (
+      <Link
+        to="/register"
+        className="mt-2 inline-block text-sm font-semibold text-[#006491]"
+      >
+        Account not found? Create Account
+      </Link>
+    )}
+  </div>
+)}
+
           {/* Submit */}
           <button
             type="submit"
-            className="mt-2 w-full rounded-2xl bg-[#006491] py-4 text-sm font-semibold tracking-wide text-white transition duration-300 hover:-translate-y-[2px] hover:bg-[#00527a] hover:shadow-xl"
+            disabled={loading}
+            className="mt-2 w-full rounded-2xl bg-[#006491] py-4 text-sm font-semibold tracking-wide text-white transition duration-300 hover:-translate-y-[2px] hover:bg-[#00527a] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Sign In
+            {loading
+              ? "Signing In..."
+              : "Sign In"}
           </button>
         </form>
 

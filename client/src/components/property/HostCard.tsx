@@ -2,6 +2,8 @@ import { MessageCircle, ShieldCheck } from "lucide-react";
 
 import Button from "../ui/Button";
 
+import hostImage from "../../assets/host-1.jpg";
+
 // =====================================
 // Host Card
 //
@@ -28,7 +30,7 @@ function HostCard() {
           {/* Host Image */}
 
           <img
-            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300"
+            src={hostImage}
             alt="Host"
             className="h-24 w-24 rounded-full object-cover"
           />

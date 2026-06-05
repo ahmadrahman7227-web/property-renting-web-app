@@ -1,10 +1,12 @@
+import ctaBackground from "../../assets/cta-1.jpg";
+
 function CTASection() {
   return (
     <section className="px-5 py-28 md:px-16">
       <div className="relative overflow-hidden rounded-[48px] bg-[#006491] px-8 py-24 text-center md:px-20">
         <div className="absolute inset-0 opacity-10">
           <img
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070"
+            src={ctaBackground}
             alt="Ocean"
             className="h-full w-full object-cover"
           />
